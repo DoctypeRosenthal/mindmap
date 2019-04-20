@@ -1,0 +1,7 @@
+.node {
+  background: #f00;
+}
+.node__tools {
+  position: absolute;
+  top: -20px;
+}
