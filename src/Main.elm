@@ -1,42 +1,38 @@
 module Main exposing (Model, init, main, update, view)
 
 import Browser
-import Html exposing (Html, div, h1, img, text)
-import Html.Attributes exposing (src)
+import Html exposing (Html)
 import Node exposing (Node, nodeView)
+import Svg.Attributes
 import Task
 import Time
-
-
+import Svg
 
 ---- MODEL ----
 
+type DragState
+  = Static
+  | Moving Int Int Int Int
 
 type alias Model =
     { root : Node
-    , inEditMode : Bool
+    , dragState : DragState
     }
 
 
 init : ( Model, Cmd Node.Msg )
 init =
-    ( { root = Node.default, inEditMode = False }, Cmd.none )
+    ( { root = Node.default, dragState = Static }, Cmd.none )
 
 
 
 ---- UPDATE ----
 
-
 update : Node.Msg -> Model -> ( Model, Cmd Node.Msg )
 update msg model =
     case msg of
         Node.Edit _ ->
-            if model.inEditMode then
-                -- don't do anything
-                ( model, Cmd.none )
-
-            else
-                ( { model | inEditMode = True, root = Node.update msg model.root }, Cmd.none )
+                ( { model | root = Node.update msg model.root }, Cmd.none )
 
         Node.GetTime callbackMsg ->
             ( model, Task.perform callbackMsg Time.now )
@@ -51,11 +47,12 @@ update msg model =
 
 view : Model -> Html Node.Msg
 view model =
-    div []
-        [ img [ src "/logo.svg" ] []
-        , h1 [] [ text "Your Elm App is working!" ]
-        , nodeView model.root
+    Svg.svg
+        [ Svg.Attributes.width "120"
+        , Svg.Attributes.height "120"
+        , Svg.Attributes.viewBox "0 0 120 120"
         ]
+        [ nodeView model.root ]
 
 
 
@@ -68,5 +65,6 @@ main =
         { view = view
         , init = \_ -> init
         , update = update
-        , subscriptions = always Sub.none
+        , subscriptions = \_ -> Sub.none
         }
+
